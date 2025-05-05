@@ -10,6 +10,11 @@ import { useAuth } from "../hooks/useAuth";
 // Importamos páginas placeholder para las nuevas rutas
 import PlaceholderPage from "../components/common/PlaceholderPage";
 
+// Importamos las páginas del módulo de Sedes
+import SedesPage from "../pages/sedes/SedesPage";
+import NuevaSedeForm from "../pages/sedes/NuevaSedeForm";
+import EditarSedeForm from "../pages/sedes/EditarSedeForm";
+
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
@@ -54,15 +59,12 @@ const AppRoutes: React.FC = () => {
               />
             }
           />
-          <Route
-            path="/sedes"
-            element={
-              <PlaceholderPage
-                title="Sedes"
-                description="Administra las sedes de la organización"
-              />
-            }
-          />
+
+          {/* Rutas del módulo de Sedes */}
+          <Route path="/sedes" element={<SedesPage />} />
+          <Route path="/sedes/crear" element={<NuevaSedeForm />} />
+          <Route path="/sedes/editar/:id" element={<EditarSedeForm />} />
+
           <Route
             path="/elementos"
             element={

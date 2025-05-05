@@ -17,6 +17,7 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import { useAuth } from "../../hooks/useAuth";
 import ThemeToggle from "../ui/ThemeToggle";
@@ -30,54 +31,14 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-
-// Definimos la estructura del menú
-interface MenuItem {
-  text: string;
-  icon: React.ReactNode;
-  path: string;
-}
-
-const menuItems: MenuItem[] = [
-  {
-    text: "Usuarios",
-    icon: <PeopleOutlineIcon />,
-    path: "/usuarios",
-  },
-  {
-    text: "Contactos",
-    icon: <ContactsOutlinedIcon />,
-    path: "/contactos",
-  },
-  {
-    text: "Módulo Principal",
-    icon: <DashboardOutlinedIcon />,
-    path: "/dashboard",
-  },
-  {
-    text: "Entregas - Bajas",
-    icon: <LocalShippingOutlinedIcon />,
-    path: "/entregas-bajas",
-  },
-  {
-    text: "Sedes",
-    icon: <LocationOnOutlinedIcon />,
-    path: "/sedes",
-  },
-  {
-    text: "Elementos",
-    icon: <InventoryOutlinedIcon />,
-    path: "/elementos",
-  },
-  {
-    text: "Estadísticas",
-    icon: <BarChartOutlinedIcon />,
-    path: "/estadisticas",
-  },
-];
+import CircleIcon from "@mui/icons-material/Circle";
+import { useMenu } from "../../hooks/useMenu";
 
 // Ancho del drawer
 const drawerWidth = 240;
+
+// En el componente MainLayout agrega un arreglo de rutas que deberían ser de ancho completo
+const fullWidthRoutes = ["/sedes", "/sedes/crear", "/sedes/editar"];
 
 const MainLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -86,6 +47,7 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { menuOptions, isLoading } = useMenu();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -97,6 +59,77 @@ const MainLayout: React.FC = () => {
       setMobileOpen(false);
     }
   };
+
+  const renderMenuItems = () => {
+    if (isLoading) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+          <CircularProgress size={30} />
+        </Box>
+      );
+    }
+
+    return menuOptions.map((item) => (
+      <ListItem key={item.name} disablePadding>
+        <ListItemButton
+          onClick={() => handleMenuClick(item.route)}
+          selected={location.pathname === item.route}
+          sx={{
+            py: 1.5,
+            "&.Mui-selected": {
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255, 255, 255, 0.08)"
+                  : "rgba(0, 0, 0, 0.04)",
+              borderLeft: `4px solid ${theme.palette.primary.main}`,
+              "&:hover": {
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.12)"
+                    : "rgba(0, 0, 0, 0.08)",
+              },
+            },
+            "&:hover": {
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.03)",
+            },
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              color:
+                location.pathname === item.route ? "primary.main" : "inherit",
+              minWidth: 40,
+            }}
+          >
+            {renderIcon(item.icon)}
+          </ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItemButton>
+      </ListItem>
+    ));
+  };
+
+  const renderIcon = (iconName: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      people: <PeopleOutlineIcon />,
+      contacts: <ContactsOutlinedIcon />,
+      dashboard: <DashboardOutlinedIcon />,
+      shipping: <LocalShippingOutlinedIcon />,
+      location: <LocationOnOutlinedIcon />,
+      inventory: <InventoryOutlinedIcon />,
+      chart: <BarChartOutlinedIcon />,
+    };
+
+    return iconMap[iconName] || <CircleIcon />;
+  };
+
+  // Luego, dentro del componente, agrega una comprobación:
+  const isFullWidthPage = fullWidthRoutes.some((route) =>
+    location.pathname.startsWith(route)
+  );
 
   // Contenido del drawer (menú lateral)
   const drawer = (
@@ -125,51 +158,7 @@ const MainLayout: React.FC = () => {
         </Typography>
       </Box>
 
-      <List sx={{ pt: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              onClick={() => handleMenuClick(item.path)}
-              selected={location.pathname === item.path}
-              sx={{
-                py: 1.5,
-                "&.Mui-selected": {
-                  backgroundColor:
-                    theme.palette.mode === "dark"
-                      ? "rgba(255, 255, 255, 0.08)"
-                      : "rgba(0, 0, 0, 0.04)",
-                  borderLeft: `4px solid ${theme.palette.primary.main}`,
-                  "&:hover": {
-                    backgroundColor:
-                      theme.palette.mode === "dark"
-                        ? "rgba(255, 255, 255, 0.12)"
-                        : "rgba(0, 0, 0, 0.08)",
-                  },
-                },
-                "&:hover": {
-                  backgroundColor:
-                    theme.palette.mode === "dark"
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : "rgba(0, 0, 0, 0.03)",
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color:
-                    location.pathname === item.path
-                      ? "primary.main"
-                      : "inherit",
-                  minWidth: 40,
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <List sx={{ pt: 1 }}>{renderMenuItems()}</List>
 
       <Divider sx={{ my: 2 }} />
 
@@ -263,12 +252,30 @@ const MainLayout: React.FC = () => {
           bgcolor:
             theme.palette.mode === "dark" ? "background.default" : "grey.50",
           minHeight: "100vh",
+          overflowX: isFullWidthPage ? "visible" : "hidden", // Permitir overflow en páginas de ancho completo
         }}
       >
         <Toolbar /> {/* Espaciado para compensar la AppBar */}
-        <Container maxWidth="xl" sx={{ mt: 2 }}>
-          <Outlet />
-        </Container>
+        {isFullWidthPage ? (
+          <Box
+            sx={{
+              mt: 2,
+              width: "100%",
+              maxWidth: "none", // Sin restricciones de ancho
+              marginLeft: "-24px", // Compensar el padding del contenedor padre
+              marginRight: "-24px",
+              paddingLeft: "24px",
+              paddingRight: "24px",
+              boxSizing: "border-box",
+            }}
+          >
+            <Outlet />
+          </Box>
+        ) : (
+          <Container maxWidth="xl" sx={{ mt: 2 }}>
+            <Outlet />
+          </Container>
+        )}
       </Box>
     </Box>
   );

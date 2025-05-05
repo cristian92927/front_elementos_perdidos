@@ -1,9 +1,9 @@
 // Constante para la URL base de la API
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5150/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export interface LoginRequest {
-  Usuario: string;
-  Contraseña: string;
+  usuario: string;
+  contraseña: string;
 }
 
 export interface LoginResponse {
@@ -75,9 +75,6 @@ const fetchApi = async <T>(
   return await response.json();
 };
 
-import { authAdapter } from "../adapters/authAdapter";
-import api from "./api";
-
 export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
     const data = await fetchApi<LoginResponse>("/Auth/login", {
@@ -94,22 +91,10 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    // Limpiar el almacenamiento local primero para asegurar el logout del lado cliente
+    // Simplemente limpiar el almacenamiento local para finalizar la sesión
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
-
-    try {
-      if (refreshToken) {
-        // Usar el adaptador para asegurar el formato correcto
-        const revokeRequest = authAdapter.toRevokeTokenRequest(refreshToken);
-        await api.post("/Auth/revoke-token", revokeRequest);
-      }
-    } catch (error) {
-      console.error("Error en proceso de logout:", error);
-    }
   },
 
   getCurrentUser: (): LoginResponse["userDto"] | null => {

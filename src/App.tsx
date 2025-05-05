@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { CssBaseline, ThemeProvider as MuiThemeProvider } from "@mui/material";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { MenuProvider } from "./context/MenuContext";
 import { useThemeMode } from "./hooks/useThemeMode";
 import { createAppTheme } from "./theme";
 import AppRoutes from "./routes";
@@ -17,7 +18,9 @@ const ThemedApp = () => {
       <CssBaseline /> {/* Normaliza los estilos base */}
       <BrowserRouter>
         <AuthProvider>
-          <AppRoutes />
+          <MenuProvider>
+            <AppRoutes />
+          </MenuProvider>
         </AuthProvider>
       </BrowserRouter>
     </MuiThemeProvider>

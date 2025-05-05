@@ -220,10 +220,6 @@ const LoginPage: React.FC = () => {
                 variant="outlined"
                 {...register("password", {
                   required: "La contraseña es requerida",
-                  minLength: {
-                    value: 6,
-                    message: "La contraseña debe tener al menos 6 caracteres",
-                  },
                 })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
